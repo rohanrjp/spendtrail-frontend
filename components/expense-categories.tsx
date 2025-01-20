@@ -30,9 +30,7 @@ export function ExpenseCategories() {
                 labelLine={false}
                 outerRadius={100}
                 fill="#8884d8"
-                dataKey="value"
-                labelPlacement="insideTopRight"
-                
+                dataKey="value"                
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
