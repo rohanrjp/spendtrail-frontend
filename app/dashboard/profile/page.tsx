@@ -23,7 +23,7 @@ const fetcher = async (url: string) => {
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   })
-  if (!res.ok) throw new Error('Failed to fetch user data')
+  if (!res.ok) throw new Error('Failed to fetch user data, Please login again')
   return res.json()
 }
 

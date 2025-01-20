@@ -17,7 +17,7 @@ export function DashboardNavbar({ onMenuClick }: DashboardNavbarProps) {
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+            <span className="text-3xl font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               SpendTrail
             </span>
           </Link>
