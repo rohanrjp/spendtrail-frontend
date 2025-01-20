@@ -37,7 +37,7 @@ export default function ExpensesPage() {
     const token = localStorage.getItem('jwt_token');
   
     try {
-      const response = await fetch('http://localhost:8000/api/expenses', {
+      const response = await fetch('https://spendtrail-backend.onrender.com/api/expenses', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export default function ExpensesPage() {
       }
 
       const response = await fetch(
-        `http://localhost:8000/api/update_expense/${editingExpense.expense_category}`,
+        `https://spendtrail-backend.onrender.com/api/update_expense/${editingExpense.expense_category}`,
         {
           method: "PUT",
           headers: {

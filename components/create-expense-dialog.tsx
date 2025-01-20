@@ -29,7 +29,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   const token = localStorage.getItem('jwt_token')
 
   try {
-    const response = await fetch('http://localhost:8000/api/create_expense', {
+    const response = await fetch('https://spendtrail-backend.onrender.com/api/create_expense', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
