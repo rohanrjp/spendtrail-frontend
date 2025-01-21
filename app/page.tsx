@@ -11,7 +11,7 @@ export default function LandingPage() {
           <div className="flex flex-col items-center space-y-4 text-center">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
               Welcome to{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+              <span className="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-transparent bg-clip-text">
                 SpendTrail
               </span>
             </h1>

@@ -38,7 +38,7 @@ export function Overview() {
         <Tooltip
           contentStyle={{ background: "var(--background)", border: "1px solid var(--border)" }}
           labelStyle={{ color: "var(--foreground)" }}
-          position={{ x: 180, y: 20 }}
+          position={{ x: 190, y: 20 }}
         />
         <Legend />
         <Line type="monotone" dataKey="expenses" stroke="#8884d8" strokeWidth={2} dot={false} name="Expenses" />

@@ -5,20 +5,20 @@
 @layer base {
   :root {
     --radius: 0.5rem;
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --pgbar:180°, 0%, 50%;
+    --background: 0 0% 100%; 
+    --foreground: 222.2 84% 4.9%; 
+    --accent: 210 40% 96.1%; 
+    --accent-foreground: 222.2 47.4% 11.2%; 
+    --pgbar: 180deg, 0%, 50%; 
   }
 
   .dark {
     --radius: 0.5rem;
-    --background: 240, 10%, 3.9%;
-    --foreground: 210 40% 98%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --pgbar:180°, 0%, 50%;
+    --background: 240 10% 10%; 
+    --foreground: 0 0% 92%; 
+    --accent: 217.2 32.6% 35%; 
+    --accent-foreground: 0 0% 98%; 
+    --pgbar: 180deg, 0%, 25%; 
   }
 }
 
