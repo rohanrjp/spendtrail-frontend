@@ -57,7 +57,7 @@ export function AIFinancialAdvice() {
         <CardTitle className="text-sm font-medium">
           AI Financial Advice
         </CardTitle>
-        <Brain className="h-4 w-4 text-purple-500" />
+        <Brain className="h-4 w-4 text-yellow-500" />
       </CardHeader>
       <CardContent>
         {isLoading ? (

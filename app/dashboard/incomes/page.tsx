@@ -1,37 +1,130 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from 'lucide-react'
-import { CreateIncomeDialog } from "@/components/create-income-dialog"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { CreateIncomeDialog } from "@/components/create-income-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Dummy data for incomes
-const initialIncomes = [
-  { id: 1, category: "Salary", amount: 3000, emoji: "💼" },
-  { id: 2, category: "Freelance", amount: 500, emoji: "💻" },
-  { id: 3, category: "Investments", amount: 200, emoji: "📈" },
-  { id: 4, category: "Rental Income", amount: 800, emoji: "🏠" },
-  { id: 5, category: "Side Hustle", amount: 300, emoji: "🚗" },
-]
+type Income = {
+  id: number;
+  income_category: string;
+  income_emoji: string;
+  income_amount: number;
+};
 
 export default function IncomesPage() {
-  const [incomes, setIncomes] = useState(initialIncomes)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editingIncome, setEditingIncome] = useState<typeof incomes[0] | null>(null)
+  const [incomes, setIncomes] = useState<Income[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null);
 
-  const handleEditIncome = (income: typeof incomes[0]) => {
-    setEditingIncome(income)
-    setIsEditDialogOpen(true)
+  useEffect(() => {
+    fetchIncomes();
+  }, []);
+
+  const fetchIncomes = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    const token = localStorage.getItem("jwt_token");
+
+    try {
+      const response = await fetch("https://spendtrail-backend.onrender.com/api/incomes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("User not authenticated");
+        }
+        throw new Error("Failed to fetch incomes. Please log in again.");
+      }
+
+      const data: Income[] = await response.json();
+      setIncomes(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred while fetching incomes");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditIncome = (income: Income) => {
+    setEditingIncome(income);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateIncome = async (updatedIncome: Income) => {
+    try {
+      const token = localStorage.getItem("jwt_token");
+      if (!token) {
+        throw new Error("User is not authenticated");
+      }
+
+      const response = await fetch(
+        `https://spendtrail-backend.onrender.com/api/update_income/${updatedIncome.income_category}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount_to_add: updatedIncome.income_amount,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to update income");
+      }
+
+      setIsEditDialogOpen(false);
+      fetchIncomes(); // Refresh incomes after update
+    } catch (err) {
+      console.error("Error updating income:", err);
+      alert("Error updating income: " + (err instanceof Error ? err.message : "Unknown error"));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Incomes</h1>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, index) => (
+            <Skeleton key={index} className="h-[150px]" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
-  const handleUpdateIncome = (updatedIncome: typeof incomes[0]) => {
-    setIncomes(incomes.map(inc => inc.id === updatedIncome.id ? updatedIncome : inc))
-    setIsEditDialogOpen(false)
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Incomes</h1>
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
 
   return (
@@ -51,27 +144,33 @@ export default function IncomesPage() {
           <Card key={income.id} className="cursor-pointer" onClick={() => handleEditIncome(income)}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span>{income.emoji}</span>
-                {income.category}
+                <span>{income.income_emoji}</span>
+                {income.income_category}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">${income.amount}</p>
+              <p className="text-2xl font-bold">₹ {income.income_amount}</p>
             </CardContent>
           </Card>
         ))}
       </div>
-      <CreateIncomeDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
+      <CreateIncomeDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onIncomeCreated={fetchIncomes}
+      />
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Income</DialogTitle>
+            <DialogTitle>Add more Income</DialogTitle>
           </DialogHeader>
           {editingIncome && (
-            <form onSubmit={(e) => {
-              e.preventDefault()
-              handleUpdateIncome(editingIncome)
-            }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateIncome(editingIncome);
+              }}
+            >
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">
@@ -80,20 +179,21 @@ export default function IncomesPage() {
                   <Input
                     id="amount"
                     type="number"
-                    value={editingIncome.amount}
-                    onChange={(e) => setEditingIncome({...editingIncome, amount: Number(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingIncome({ ...editingIncome, income_amount: Number(e.target.value) })
+                    }
                     className="col-span-3"
+                    required
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Update Income</Button>
+                <Button type="submit"className="bg-green-600">Update Income</Button>
               </DialogFooter>
             </form>
           )}
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-
