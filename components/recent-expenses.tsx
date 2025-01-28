@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from 'react'
 import { DataTable } from "@/components/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from 'lucide-react'
@@ -65,19 +66,55 @@ const columns: ColumnDef<Expense>[] = [
   },
 ]
 
-const expenses: Expense[] = [
-  { id: 1, name: "Groceries", amount: 120.50, date: "2023-04-01" },
-  { id: 2, name: "Electricity Bill", amount: 85.00, date: "2023-04-05" },
-  { id: 3, name: "Internet", amount: 60.00, date: "2023-04-10" },
-  { id: 4, name: "Gas", amount: 45.75, date: "2023-04-15" },
-  { id: 5, name: "Restaurant", amount: 78.25, date: "2023-04-20" },
-]
-
 export function RecentExpenses() {
+  const [expenses, setExpenses] = useState<Expense[]>([])
+
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      const jwtToken = localStorage.getItem('jwt_token')  // Retrieve JWT token from local storage
+
+      if (!jwtToken) {
+        console.error("JWT token is missing in localStorage.")
+        return
+      }
+
+      try {
+        // Make the API request to fetch expenses
+        const response = await fetch("https://spendtrail-backend.onrender.com/api/dashboard/recent_expenses", {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        // Ensure the response is ok
+        if (!response.ok) {
+          throw new Error(`Error fetching expenses: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+
+        // Process the response and map it to the format required by the DataTable
+        const mappedExpenses = data.map((expense: { category: string, amount: number, date: string }, index: number) => ({
+          id: index + 1,  // Use the index as the ID
+          name: expense.category,
+          amount: expense.amount,
+          date: expense.date,  // Assuming the date is already in the correct format
+        }))
+
+        setExpenses(mappedExpenses)
+      } catch (error) {
+        console.error("Error fetching recent expenses:", error)
+      }
+    }
+
+    fetchExpenses()
+  }, [])  // Fetch the expenses data on mount
+
   return (
     <div className="h-[300px] overflow-auto">
       <DataTable columns={columns} data={expenses} />
     </div>
   )
 }
-
