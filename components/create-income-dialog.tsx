@@ -79,7 +79,6 @@ export function CreateIncomeDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 py-4">
-            {/* Category Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">
                 Category
@@ -109,7 +108,6 @@ export function CreateIncomeDialog({
                 className="col-span-3"
               />
             </div>
-            {/* Emoji Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Emoji</Label>
               <div className="col-span-3">

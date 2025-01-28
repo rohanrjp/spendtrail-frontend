@@ -1,42 +1,110 @@
 "use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle } from "lucide-react"
 import { CreateBudgetDialog } from "@/components/create-budget-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton" 
 
-// Dummy data for budgets
-const initialBudgets = [
-  { id: 1, category: "Housing", amount: 1000, spent: 800, emoji: "🏠" },
-  { id: 2, category: "Food", amount: 500, spent: 450, emoji: "🍔" },
-  { id: 3, category: "Transportation", amount: 200, spent: 180, emoji: "🚗" },
-  { id: 4, category: "Entertainment", amount: 150, spent: 100, emoji: "🎬" },
-  { id: 5, category: "Utilities", amount: 300, spent: 280, emoji: "💡" },
-]
+interface Budget {
+  id: number
+  category: string
+  total_budget_amount: number
+  spent: number
+  emoji: string
+  remaining: number
+}
 
 export default function BudgetsPage() {
-  const [budgets, setBudgets] = useState(initialBudgets)
+  const [budgets, setBudgets] = useState<Budget[]>([])
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editingBudget, setEditingBudget] = useState<typeof budgets[0] | null>(null)
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleEditBudget = (budget: typeof budgets[0]) => {
+  const fetchBudgets = async () => {
+    setLoading(true)
+    setError("")
+
+    try {
+      const token = localStorage.getItem("jwt_token")
+
+      if (!token) {
+        setError("Authorization token not found.")
+        return
+      }
+
+      const response = await fetch("https://spendtrail-backend.onrender.com/api/budget_details", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch budgets")
+      }
+
+      const data = await response.json()
+      setBudgets(data)
+    } catch (err: any) {
+      setError(err.message || "An error occurred while fetching budgets")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBudgets()
+  }, [])
+
+  const handleEditBudget = (budget: Budget) => {
     setEditingBudget(budget)
     setIsEditDialogOpen(true)
   }
 
-  const handleUpdateBudget = (updatedBudget: typeof budgets[0]) => {
-    setBudgets(budgets.map(bud => bud.id === updatedBudget.id ? updatedBudget : bud))
-    setIsEditDialogOpen(false)
+  const handleUpdateBudget = async (updatedBudget: Budget) => {
+    try {
+      const token = localStorage.getItem("jwt_token")
+
+      const response = await fetch(
+        `https://spendtrail-backend.onrender.com/api/update_budget/${updatedBudget.category}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount_to_add: updatedBudget.total_budget_amount, 
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error("Failed to update the budget")
+      }
+
+      await fetchBudgets()
+      setIsEditDialogOpen(false)
+    } catch (err: any) {
+      setError(err.message || "An error occurred while updating the budget")
+    }
+  }
+
+  const handleBudgetCreated = () => {
+    fetchBudgets() 
   }
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Budgets</h1>
+      {loading && <p>Loading budgets...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="cursor-pointer" onClick={() => setIsCreateDialogOpen(true)}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -47,61 +115,74 @@ export default function BudgetsPage() {
             <div className="text-2xl font-bold">Add New</div>
           </CardContent>
         </Card>
-        {budgets.map((budget) => (
-          <Card key={budget.id} className="cursor-pointer" onClick={() => handleEditBudget(budget)}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span>{budget.emoji}</span>
-                {budget.category}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">${budget.amount}</p>
-              <p>Spent: ${budget.spent}</p>
-              <p>Remaining: ${budget.amount - budget.spent}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {loading
+          ? Array(2)
+              .fill(null)
+              .map((_, index) => (
+                <Card key={index} className="cursor-pointer">
+                  <CardHeader>
+                    <div className="h-6 w-2/3 bg-gray-300 animate-pulse"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-8 w-1/3 bg-gray-300 animate-pulse mb-2"></div>
+                    <div className="h-6 w-1/2 bg-gray-300 animate-pulse mb-2"></div>
+                    <div className="h-6 w-1/2 bg-gray-300 animate-pulse mb-2"></div>
+                  </CardContent>
+                </Card>
+              ))
+          : budgets.map((budget) => (
+              <Card key={budget.id} className="cursor-pointer" onClick={() => handleEditBudget(budget)}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span>{budget.emoji}</span>
+                    {budget.category}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">₹ {budget.total_budget_amount}</p>
+                  <p>Spent: ₹ {budget.spent}</p>
+                  <p>Remaining: ₹ {budget.remaining}</p>
+                </CardContent>
+              </Card>
+            ))}
       </div>
-      <CreateBudgetDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
+      <CreateBudgetDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onBudgetCreated={handleBudgetCreated} 
+      />
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Budget</DialogTitle>
+            <DialogTitle>Update Budget</DialogTitle>
           </DialogHeader>
           {editingBudget && (
-            <form onSubmit={(e) => {
-              e.preventDefault()
-              handleUpdateBudget(editingBudget)
-            }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleUpdateBudget(editingBudget)
+              }}
+            >
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">
-                    Amount
+                    Updated Amount
                   </Label>
                   <Input
                     id="amount"
                     type="number"
-                    value={editingBudget.amount}
-                    onChange={(e) => setEditingBudget({...editingBudget, amount: Number(e.target.value)})}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="spent" className="text-right">
-                    Spent
-                  </Label>
-                  <Input
-                    id="spent"
-                    type="number"
-                    value={editingBudget.spent}
-                    onChange={(e) => setEditingBudget({...editingBudget, spent: Number(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingBudget({
+                        ...editingBudget,
+                        total_budget_amount: Number(e.target.value),
+                      })
+                    }
                     className="col-span-3"
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Update Budget</Button>
+                <Button type="submit" className="bg-green-600">Update Budget</Button>
               </DialogFooter>
             </form>
           )}
@@ -110,4 +191,3 @@ export default function BudgetsPage() {
     </div>
   )
 }
-

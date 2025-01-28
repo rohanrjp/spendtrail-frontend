@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic'
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
-const categories = ["food", "health", "transport", "utilities", "entertainment", "other"]
+const categories = ["Housing", "Food", "Transportation", "Utilities", "Entertainment", "Other"]
 
 interface CreateExpenseDialogProps {
   open: boolean
@@ -23,38 +23,42 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
   const [category, setCategory] = useState("")
   const [emoji, setEmoji] = useState("💰")
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [error, setError] = useState<string | null>(null)  
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  const token = localStorage.getItem('jwt_token')
-
-  try {
-    const response = await fetch('https://spendtrail-backend.onrender.com/api/create_expense', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        expense_category: category,
-        expense_emoji: emoji,
-        expense_amount: Number(amount),
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to create expense')
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const token = localStorage.getItem('jwt_token')
+    setError("") 
+  
+    try {
+      const response = await fetch('https://spendtrail-backend.onrender.com/api/create_expense', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          expense_category: category,
+          expense_emoji: emoji,
+          expense_amount: Number(amount),
+        }),
+      })
+  
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        throw new Error(errorResponse.detail || 'Failed to create expense')
+      }
+  
+      onExpenseCreated()
+      onOpenChange(false)
+      setAmount("")
+      setCategory("")
+      setEmoji("💰")
+    } catch (error: any) {
+      console.error('Error creating expense:', error)
+      setError(error.message || 'An error occurred while creating the expense')
     }
-
-    onExpenseCreated()
-    onOpenChange(false)
-    setAmount("")
-    setCategory("")
-    setEmoji("💰")
-  } catch (error) {
-    console.error('Error creating expense:', error)
   }
-}
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,6 +66,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <DialogHeader>
           <DialogTitle>Create New Expense</DialogTitle>
         </DialogHeader>
+        {error && <div className="text-red-500">{error}</div>} 
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 py-4">
             <div className="grid grid-cols-4 items-center gap-4">

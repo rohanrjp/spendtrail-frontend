@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -15,39 +13,76 @@ const categories = ["Housing", "Food", "Transportation", "Utilities", "Entertain
 interface CreateBudgetDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onBudgetCreated: () => void  
 }
 
-export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogProps) {
+export function CreateBudgetDialog({ open, onOpenChange, onBudgetCreated }: CreateBudgetDialogProps) {
   const [name, setName] = useState("")
   const [amount, setAmount] = useState("")
   const [category, setCategory] = useState("")
   const [emoji, setEmoji] = useState("💰")
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Creating budget:", { name, amount, category, emoji })
-    onOpenChange(false)
+    const token = localStorage.getItem('jwt_token')
+    setError(null)
+
+    try {
+      const response = await fetch('https://spendtrail-backend.onrender.com/api/create_budget', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          budget_category: category,
+          budget_emoji: emoji,
+          budget_amount: Number(amount),
+        }),
+      })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        throw new Error(errorResponse.detail || 'Failed to create budget')
+      }
+
+      onBudgetCreated()
+
+      onOpenChange(false)
+      setAmount("")
+      setCategory("")
+      setEmoji("💰")
+    } catch (error: any) {
+      console.error('Error creating budget:', error)
+      setError(error.message || 'An error occurred while creating the budget')
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Create New Budget</DialogTitle>
         </DialogHeader>
+        {error && <div className="text-red-500">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
+              <Label htmlFor="category" className="text-right">
+                Category
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-              />
+              <Select onValueChange={setCategory} value={category}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right">
@@ -60,21 +95,6 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
                 onChange={(e) => setAmount(e.target.value)}
                 className="col-span-3"
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">
-                Category
-              </Label>
-              <Select onValueChange={setCategory} value={category}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Emoji</Label>
@@ -102,11 +122,10 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create Budget</Button>
+            <Button type="submit" className="bg-green-600">Create Budget</Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

@@ -98,7 +98,7 @@ export default function IncomesPage() {
       }
 
       setIsEditDialogOpen(false);
-      fetchIncomes(); // Refresh incomes after update
+      fetchIncomes(); 
     } catch (err) {
       console.error("Error updating income:", err);
       alert("Error updating income: " + (err instanceof Error ? err.message : "Unknown error"));

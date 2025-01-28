@@ -172,13 +172,13 @@ export default function ExpensesPage() {
       }
 
       setIsEditDialogOpen(false);
-      fetchExpenses(); // Refresh expenses after update
+      fetchExpenses(); 
     } catch (err) {
       let errorMessage = "An unknown error occurred.";
       if (err instanceof Error) {
         errorMessage = err.message;
       } else if (typeof err === "string") {
-        errorMessage = err; // Handle string errors
+        errorMessage = err; 
       }
 
       console.error("Error updating expense:", errorMessage);
@@ -204,7 +204,7 @@ export default function ExpensesPage() {
     </div>
   </div>
   <DialogFooter>
-    <Button type="submit">Update Expense</Button>
+    <Button type="submit" className="bg-green-600">Update Expense</Button>
   </DialogFooter>
 </form>
     )}
