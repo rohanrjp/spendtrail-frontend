@@ -68,18 +68,24 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({ amount_to_update: parseFloat(goalValue) }),
       })
-
-      if (!res.ok) throw new Error("Failed to update goal")
-
+    
+      const responseData = await res.json()
+      console.log("API Response:", responseData)
+    
+      if (!res.ok) throw new Error(responseData.detail || "Failed to update goal")
+    
       mutate() // Refresh data
       goalType === "income" ? setIncomeGoal("") : setSavingsGoal("")
       alert(`${goalType === "income" ? "Income" : "Savings"} goal updated successfully`)
-    } catch (error) {
-      alert(error.message)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message) // TypeScript now recognizes error.message
+      } else {
+        alert("An unknown error occurred")
+      }
     } finally {
       goalType === "income" ? setLoadingIncome(false) : setLoadingSavings(false)
     }
-  }
 
   if (error) {
     return (
@@ -189,4 +195,5 @@ export default function ProfilePage() {
       </Card>
     </div>
   )
+}
 }
