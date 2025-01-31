@@ -152,51 +152,65 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Profile</h1>
       <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-35 w-35">
-              {userData?.avatar && userData.avatar.startsWith("http") ? (
-                <AvatarImage src={userData.avatar} alt={userData.name} />
-              ) : (
-                <AvatarFallback className="bg-blue-300 text-white text-5xl flex items-center justify-center w-full h-full">
-                  {userData?.avatar ||
-                    userData?.name?.charAt(0).toUpperCase() ||
-                    "U"}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div>
-              <CardTitle className="text-4xl">{userData?.name}</CardTitle>
-              <p className="text-sm text-muted-foreground">{userData?.email}</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="font-semibold">User ID</p>
-              <p>{userData?.id}</p>
-            </div>
-            <div>
-              <p className="font-semibold">Join Date</p>
-              <p>
-                {userData?.join_date
-                  ? new Date(userData.join_date).toLocaleDateString()
-                  : "N/A"}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="destructive"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="w-full bg-red-600 hover:bg-red-700 text-white"
-          >
-            {isLoggingOut ? "Logging out..." : "Log Out"}
-          </Button>
-        </CardContent>
-      </Card>
+  <CardHeader>
+    {/* First Flex Box: Avatar + Name + Email */}
+    <div className="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto sm:space-x-4">
+      {/* Avatar */}
+      <div className="flex justify-center sm:justify-start">
+        <Avatar className="h-40 w-40">
+          {userData?.avatar && userData.avatar.startsWith("http") ? (
+            <AvatarImage src={userData.avatar} alt={userData.name} />
+          ) : (
+            <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-white text-7xl flex items-center justify-center w-full h-full">
+              {userData?.avatar || userData?.name?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          )}
+        </Avatar>
+      </div>
 
+      {/* Name and Email */}
+      <div className="mt-4 sm:mt-0 flex flex-col justify-center sm:items-start items-center sm:ml-4">
+        <CardTitle className=" text-4xl lg:text-6xl">{userData?.name}</CardTitle>
+        <p className="text-md text-muted-foreground">{userData?.email}</p>
+      </div>
+    </div>
+
+    {/* Second Flex Box: User Details */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full sm:w-auto mt-4 sm:mt-0 max-w-full px-2 justify-center sm:justify-start">
+      <div className="flex flex-col sm:items-start items-center justify-center">
+        <p className="font-semibold">User ID</p>
+        <p>{userData?.id}</p>
+      </div>
+      <div className="flex flex-col sm:items-start items-center justify-center">
+        <p className="font-semibold">Join Date</p>
+        <p>
+          {userData?.join_date
+            ? new Date(userData.join_date).toLocaleDateString()
+            : "N/A"}
+        </p>
+      </div>
+      <div className="flex flex-col sm:items-start items-center justify-center">
+        <p className="font-semibold">Income Goal</p>
+        <p>{userData?.income_goal ? `$${userData.income_goal}` : "N/A"}</p>
+      </div>
+      <div className="flex flex-col sm:items-start items-center justify-center">
+        <p className="font-semibold">Savings Goal</p>
+        <p>{userData?.savings_goal ? `$${userData.savings_goal}` : "N/A"}</p>
+      </div>
+    </div>
+  </CardHeader>
+
+  <CardContent className="space-y-4">
+    <Button
+      variant="destructive"
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+      className="w-full bg-red-600 hover:bg-red-700 text-white"
+    >
+      {isLoggingOut ? "Logging out..." : "Log Out"}
+    </Button>
+  </CardContent>
+</Card>
       <Card>
         <CardHeader>
           <CardTitle>Update Income Goal</CardTitle>
