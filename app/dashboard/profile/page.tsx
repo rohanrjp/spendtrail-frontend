@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from "next/navigation"
 import { removeToken, getToken } from "@/utils/auth"
 import { Loader2 } from 'lucide-react'
@@ -15,6 +16,8 @@ interface UserData {
   email: string
   avatar: string
   join_date: string
+  income_goal: number
+  savings_goal: number
 }
 
 const fetcher = async (url: string) => {
@@ -30,12 +33,52 @@ const fetcher = async (url: string) => {
 export default function ProfilePage() {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const { data: userData, error } = useSWR<UserData>('https://spendtrail-backend.onrender.com/auth/profile', fetcher)
+  const { data: userData, error, mutate } = useSWR<UserData>('https://spendtrail-backend.onrender.com/auth/profile', fetcher)
+
+  const [incomeGoal, setIncomeGoal] = useState("")
+  const [savingsGoal, setSavingsGoal] = useState("")
+  const [loadingIncome, setLoadingIncome] = useState(false)
+  const [loadingSavings, setLoadingSavings] = useState(false)
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
     removeToken()
     router.push("/")
+  }
+
+  const handleUpdateGoal = async (goalType: "income" | "savings") => {
+    const token = getToken()
+    if (!token) return alert("No token found")
+
+    const url = goalType === "income"
+      ? "https://spendtrail-backend.onrender.com/api/dashboard/update_income_goal"
+      : "https://spendtrail-backend.onrender.com/api/dashboard/update_savings_goal"
+
+    const goalValue = goalType === "income" ? incomeGoal : savingsGoal
+    if (!goalValue) return alert("Please enter a valid amount")
+
+    goalType === "income" ? setLoadingIncome(true) : setLoadingSavings(true)
+
+    try {
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount_to_update: parseFloat(goalValue) }),
+      })
+
+      if (!res.ok) throw new Error("Failed to update goal")
+
+      mutate() // Refresh data
+      goalType === "income" ? setIncomeGoal("") : setSavingsGoal("")
+      alert(`${goalType === "income" ? "Income" : "Savings"} goal updated successfully`)
+    } catch (error) {
+      alert(error.message)
+    } finally {
+      goalType === "income" ? setLoadingIncome(false) : setLoadingSavings(false)
+    }
   }
 
   if (error) {
@@ -100,7 +143,50 @@ export default function ProfilePage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Update Income Goal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Update Income Goal</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input 
+            type="number" 
+            placeholder="Enter new income goal" 
+            value={incomeGoal}
+            onChange={(e) => setIncomeGoal(e.target.value)}
+          />
+          <Button 
+            onClick={() => handleUpdateGoal("income")} 
+            disabled={loadingIncome}
+            className="w-full bg-blue-600"
+          >
+            {loadingIncome ? <Loader2 className="animate-spin" size={18} /> : "Update Income Goal"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Update Savings Goal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Update Savings Goal</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input 
+            type="number" 
+            placeholder="Enter new savings goal" 
+            value={savingsGoal}
+            onChange={(e) => setSavingsGoal(e.target.value)}
+          />
+          <Button 
+            onClick={() => handleUpdateGoal("savings")} 
+            disabled={loadingSavings}
+            className="w-full bg-green-600"
+          >
+            {loadingSavings ? <Loader2 className="animate-spin" size={18} /> : "Update Savings Goal"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   )
 }
-
