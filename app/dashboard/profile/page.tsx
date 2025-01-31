@@ -154,11 +154,11 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-4">
-            <Avatar className="h-30 w-30">
+            <Avatar className="h-35 w-35">
               {userData?.avatar && userData.avatar.startsWith("http") ? (
                 <AvatarImage src={userData.avatar} alt={userData.name} />
               ) : (
-                <AvatarFallback className="bg-blue-300 text-white text-6xl flex items-center justify-center w-full h-full">
+                <AvatarFallback className="bg-blue-300 text-white text-5xl flex items-center justify-center w-full h-full">
                   {userData?.avatar ||
                     userData?.name?.charAt(0).toUpperCase() ||
                     "U"}
