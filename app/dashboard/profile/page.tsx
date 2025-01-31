@@ -191,11 +191,11 @@ export default function ProfilePage() {
       </div>
       <div className="flex flex-col sm:items-start items-center justify-center">
         <p className="font-semibold">Income Goal</p>
-        <p>{userData?.income_goal ? `$${userData.income_goal}` : "N/A"}</p>
+        <p>{userData?.income_goal ? `₹${userData.income_goal}` : "N/A"}</p>
       </div>
       <div className="flex flex-col sm:items-start items-center justify-center">
         <p className="font-semibold">Savings Goal</p>
-        <p>{userData?.savings_goal ? `$${userData.savings_goal}` : "N/A"}</p>
+        <p>{userData?.savings_goal ? `₹${userData.savings_goal}` : "N/A"}</p>
       </div>
     </div>
   </CardHeader>
