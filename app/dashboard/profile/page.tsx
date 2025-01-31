@@ -158,7 +158,7 @@ export default function ProfilePage() {
               {userData?.avatar && userData.avatar.startsWith("http") ? (
                 <AvatarImage src={userData.avatar} alt={userData.name} />
               ) : (
-                <AvatarFallback className="bg-blue-300 text-white text-7xl flex items-center justify-center w-full h-full">
+                <AvatarFallback className="bg-blue-300 text-white text-5xl flex items-center justify-center w-full h-full">
                   {userData?.avatar ||
                     userData?.name?.charAt(0).toUpperCase() ||
                     "U"}
@@ -166,8 +166,8 @@ export default function ProfilePage() {
               )}
             </Avatar>
             <div>
-              <CardTitle className="text-5xl">{userData?.name}</CardTitle>
-              <p className="text-md text-muted-foreground">{userData?.email}</p>
+              <CardTitle className="text-4xl">{userData?.name}</CardTitle>
+              <p className="text-sm text-muted-foreground">{userData?.email}</p>
             </div>
           </div>
         </CardHeader>
