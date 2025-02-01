@@ -7,6 +7,7 @@ import { ExpenseCategories } from "@/components/expense-categories";
 import  IncomeExpenseAnalysis  from "@/components/incomevsexpense";
 import { CreditCard, Wallet, PiggyBank, TrendingUp } from "lucide-react";
 import { AIFinancialAdvice } from "@/components/ai-financial-advice";
+import Link from "next/link";
 
 type FinancialData = {
   expenses: { current: number; goal: number };
@@ -28,13 +29,13 @@ type IncomeExpenseData = {
 };
 
 type DashboardDataItem = {
-  type: "incomeExpenseAnalysis" | "Piechart_data"; // Restrict to valid types
-  data: IncomeExpenseData[] | PieChartCategoryData[]; // Depending on type
+  type: "incomeExpenseAnalysis" | "Piechart_data"; 
+  data: IncomeExpenseData[] | PieChartCategoryData[]; 
 };
 
 const calculatePercentage = (current: number, goal: number) => {
   if (goal === 0) {
-    return 0;  // To handle division by zero (avoid infinity)
+    return 0;  
   }
   return Math.round((current / goal) * 100);
 };
@@ -44,9 +45,8 @@ export default function DashboardPage() {
   const [pieChartData, setPieChartData] = useState<PieChartCategoryData[]>([]);
   const [financialData, setFinancialData] = useState<FinancialData | null>(null);
 
-  // Fetch data function with JWT token
   const fetchDashboardData = async () => {
-    const jwtToken = localStorage.getItem('jwt_token');  // Retrieve JWT token from local storage
+    const jwtToken = localStorage.getItem('jwt_token'); 
 
     if (!jwtToken) {
       console.error("JWT token is missing in localStorage.");
@@ -54,7 +54,6 @@ export default function DashboardPage() {
     }
 
     try {
-      // Make the API request with Authorization header
       const response = await fetch("https://spendtrail-backend.onrender.com/api/dashboard/graphs", {
         method: 'GET',
         headers: {
@@ -63,14 +62,12 @@ export default function DashboardPage() {
         },
       });
 
-      // Ensure the response is ok
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
       }
 
       const data: DashboardDataItem[] = await response.json();
 
-      // Process and set data for respective components
       const incomeExpenseAnalysis = data.find(
         (item) => item.type === "incomeExpenseAnalysis"
       )?.data;
@@ -87,7 +84,7 @@ export default function DashboardPage() {
   };
 
   const fetchFinancialData = async () => {
-    const jwtToken = localStorage.getItem('jwt_token');  // Retrieve JWT token from local storage
+    const jwtToken = localStorage.getItem('jwt_token');  
   
     if (!jwtToken) {
       console.error("JWT token is missing in localStorage.");
@@ -95,7 +92,6 @@ export default function DashboardPage() {
     }
   
     try {
-      // Make the API request with Authorization header for financialData
       const response = await fetch("https://spendtrail-backend.onrender.com/api/dashboard/financialData", {
         method: 'GET',
         headers: {
@@ -104,16 +100,14 @@ export default function DashboardPage() {
         },
       });
   
-      // Ensure the response is ok
       if (!response.ok) {
         throw new Error(`Error fetching financial data: ${response.statusText}`);
       }
   
       const data: FinancialData | null = await response.json();
   
-      // Check if data is not null before using it
       if (data) {
-        setFinancialData(data);  // Assuming you have a state setter `setFinancialData`
+        setFinancialData(data);  
       } else {
         console.error("Received null financial data");
       }
@@ -137,6 +131,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 grid-cols-1">
         <AIFinancialAdvice />
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+        <Link href="/dashboard/expenses">
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
@@ -154,6 +149,8 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+        </Link>
+        <Link href="/dashboard/budgets">
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
@@ -171,6 +168,8 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+        </Link>
+        <Link href="/dashboard/incomes">
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -188,6 +187,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+        </Link>
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Savings</CardTitle>
