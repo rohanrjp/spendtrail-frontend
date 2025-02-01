@@ -15,7 +15,8 @@ const sidebarItems = [
   { name: "Expenses", icon: CreditCard, href: "/dashboard/expenses", color: "text-red-500" },
   { name: "Budgets", icon: PiggyBank, href: "/dashboard/budgets", color: "text-green-500" },
   { name: "Incomes", icon: Wallet, href: "/dashboard/incomes", color: "text-yellow-500" },
-  { name: "Reports", icon: BarChart3, href: "/dashboard/reports", color: "text-purple-500" },
+  { name: "Analytics", icon: BarChart3, href: "/dashboard/analytics", color: "text-purple-500" },
+  { name: "Past Reports", icon: Menu, href: "/dashboard/past-reports", color: "text-orange-500" },
   { name: "Profile", icon: User, href: "/dashboard/profile", color: "text-pink-500" },
 ]
 

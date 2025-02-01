@@ -142,8 +142,8 @@ export default function ProfilePage() {
     return (
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4">Error</h1>
-        <p className="text-red-500">{error}</p>
-        <Button onClick={() => router.push("/sign-in")}>Go to Login</Button>
+        <p className="text-red-500 pb-6">{error}</p>
+        <Button onClick={() => router.push("/sign-in")} className="bg-green-500">Go to Login</Button>
       </div>
     );
   }

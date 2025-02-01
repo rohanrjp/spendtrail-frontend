@@ -7,6 +7,7 @@ import { BudgetProgress } from "@/components/budget-progress"
 import { IncomeVsExpenses } from "@/components/income-vs-expenses"
 import { SavingsGoal } from "@/components/savings-goal"
 import { ExpenseTrend } from "@/components/expense-trend"
+import { Overview } from "@/components/overview"
 
 const monthlyData = [
   { name: 'Jan', income: 40000, expenses: 24000 },
@@ -49,14 +50,14 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'
 export default function ReportsPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Financial Reports</h1>
+      <h1 className="text-3xl font-bold">Financial Analytics</h1>
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Monthly Income vs Expenses</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -71,37 +72,10 @@ export default function ReportsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Expense Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
             <CardTitle>Savings Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <LineChart data={savingsData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -118,7 +92,7 @@ export default function ReportsPage() {
             <CardTitle>Expense Growth Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={expenseGrowthData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="category" />
@@ -130,48 +104,18 @@ export default function ReportsPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Expenses vs Budget Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <Overview/>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>        
       </div>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-  <Card>
-    <CardHeader>
-      <CardTitle>Expense Breakdown</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ExpenseBreakdown />
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Budget Progress</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <BudgetProgress />
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Income vs Expenses</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <IncomeVsExpenses />
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Savings Goal Progress</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <SavingsGoal />
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Expense Trend</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ExpenseTrend />
-    </CardContent>
-  </Card>
 </div>
       <Card>
         <CardHeader>
@@ -179,17 +123,7 @@ export default function ReportsPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            The radar chart above highlights categories with rapidly increasing spending. Based on the data:
-          </p>
-          <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-            <li>Entertainment shows the highest growth rate at 12%, indicating a significant increase in spending.</li>
-            <li>Food expenses are also growing rapidly at 8%, which might require attention.</li>
-            <li>Healthcare costs are increasing at 7%, potentially due to rising medical expenses.</li>
-            <li>Housing and Education show moderate growth rates of 5% and 4% respectively.</li>
-            <li>Utilities and Transportation have the lowest growth rates, suggesting stable or well-managed expenses in these categories.</li>
-          </ul>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Users should focus on managing expenses in high-growth categories, particularly Entertainment and Food, to maintain a balanced budget.
+            Coming soon
           </p>
         </CardContent>
       </Card>
