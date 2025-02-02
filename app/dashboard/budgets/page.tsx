@@ -121,12 +121,12 @@ export default function BudgetsPage() {
               .map((_, index) => (
                 <Card key={index} className="cursor-pointer">
                   <CardHeader>
-                    <div className="h-6 w-2/3 bg-gray-300 animate-pulse"></div>
+                    <div className="h-6 w-2/3 bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-8 w-1/3 bg-gray-300 animate-pulse mb-2"></div>
-                    <div className="h-6 w-1/2 bg-gray-300 animate-pulse mb-2"></div>
-                    <div className="h-6 w-1/2 bg-gray-300 animate-pulse mb-2"></div>
+                    <div className="h-8 w-1/3 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2"></div>
+                    <div className="h-6 w-1/2 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2"></div>
+                    <div className="h-6 w-1/2 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2"></div>
                   </CardContent>
                 </Card>
               ))

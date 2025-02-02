@@ -23,13 +23,13 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
   const [category, setCategory] = useState("")
   const [emoji, setEmoji] = useState("💰")
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [error, setError] = useState<string | null>(null)  
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     const token = localStorage.getItem('jwt_token')
-    setError("") 
-  
+
     try {
       const response = await fetch('https://spendtrail-backend.onrender.com/api/create_expense', {
         method: 'POST',
@@ -43,20 +43,20 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
           expense_amount: Number(amount),
         }),
       })
-  
+
       if (!response.ok) {
         const errorResponse = await response.json()
         throw new Error(errorResponse.detail || 'Failed to create expense')
       }
-  
+
       onExpenseCreated()
-      onOpenChange(false)
       setAmount("")
       setCategory("")
       setEmoji("💰")
     } catch (error: any) {
       console.error('Error creating expense:', error)
-      setError(error.message || 'An error occurred while creating the expense')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,7 +66,6 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
         <DialogHeader>
           <DialogTitle>Create New Expense</DialogTitle>
         </DialogHeader>
-        {error && <div className="text-red-500">{error}</div>} 
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -122,11 +121,12 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" className="bg-green-600">Create Expense</Button>
+            <Button type="submit" className="bg-green-600" disabled={loading}>
+              {loading ? "Creating..." : "Create Expense"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

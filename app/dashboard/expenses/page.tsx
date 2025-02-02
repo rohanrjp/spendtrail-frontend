@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Toaster } from "sonner";
 
 type Expense = {
   id: number;
@@ -81,12 +82,22 @@ export default function ExpensesPage() {
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Expenses</h1>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, index) => (
-            <Skeleton key={index} className="h-[150px]" />
-          ))}
+          {Array(3)
+            .fill(null)
+            .map((_, index) => (
+              <Card key={index} className="p-4">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="h-6 w-2/3 bg-gray-300 dark:bg-gray-700 animate-pulse" />
+                  <div className="h-6 w-6 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse" />
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 w-1/2 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2" />
+                </CardContent>
+              </Card>
+            ))}
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -100,6 +111,7 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-6">
+      <Toaster position="top-right" richColors />
       <h1 className="text-3xl font-bold">Expenses</h1>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card
@@ -137,80 +149,79 @@ export default function ExpensesPage() {
         onOpenChange={setIsCreateDialogOpen}
         onExpenseCreated={fetchExpenses}
       />
-<Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Add More Expense</DialogTitle>
-    </DialogHeader>
-    {editingExpense && (
-      <form
-  onSubmit={async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("jwt_token");
-      if (!token) {
-        throw new Error("User is not authenticated");
-      }
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add More Expense</DialogTitle>
+          </DialogHeader>
+          {editingExpense && (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  const token = localStorage.getItem("jwt_token");
+                  if (!token) {
+                    throw new Error("User is not authenticated");
+                  }
 
-      const response = await fetch(
-        `https://spendtrail-backend.onrender.com/api/update_expense/${editingExpense.expense_category}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            amount_to_add: editingExpense.expense_amount,
-          }),
-        }
-      );
+                  const response = await fetch(
+                    `https://spendtrail-backend.onrender.com/api/update_expense/${editingExpense.expense_category}`,
+                    {
+                      method: "PUT",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({
+                        amount_to_add: editingExpense.expense_amount,
+                      }),
+                    }
+                  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to update expense");
-      }
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || "Failed to update expense");
+                  }
 
-      setIsEditDialogOpen(false);
-      fetchExpenses(); 
-    } catch (err) {
-      let errorMessage = "An unknown error occurred.";
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === "string") {
-        errorMessage = err; 
-      }
+                  setIsEditDialogOpen(false);
+                  fetchExpenses();
+                } catch (err) {
+                  let errorMessage = "An unknown error occurred.";
+                  if (err instanceof Error) {
+                    errorMessage = err.message;
+                  } else if (typeof err === "string") {
+                    errorMessage = err;
+                  }
 
-      console.error("Error updating expense:", errorMessage);
-      alert("Error updating expense: " + errorMessage);
-    }
-  }}
->
-  <div className="grid gap-4 py-4">
-    <div className="grid grid-cols-4 items-center gap-4">
-      <Label htmlFor="amount" className="text-right">
-        Amount
-      </Label>
-      <Input
-        id="amount"
-        type="number"
-        onChange={(e) => {
-          const updatedExpense = { ...editingExpense, expense_amount: Number(e.target.value) };
-          setEditingExpense(updatedExpense);
-        }}
-        className="col-span-3"
-        required
-      />
-    </div>
-  </div>
-  <DialogFooter>
-    <Button type="submit" className="bg-green-600">Update Expense</Button>
-  </DialogFooter>
-</form>
-    )}
-  </DialogContent>
-</Dialog>
+                  console.error("Error updating expense:", errorMessage);
+                  alert("Error updating expense: " + errorMessage);
+                }
+              }}
+            >
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-right">
+                    Amount
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    onChange={(e) => {
+                      const updatedExpense = { ...editingExpense, expense_amount: Number(e.target.value) };
+                      setEditingExpense(updatedExpense);
+                    }}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" className="bg-green-600">Update Expense</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

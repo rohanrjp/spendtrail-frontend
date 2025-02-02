@@ -110,9 +110,20 @@ export default function IncomesPage() {
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Incomes</h1>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, index) => (
-            <Skeleton key={index} className="h-[150px]" />
-          ))}
+          {Array(3)
+            .fill(null)
+            .map((_, index) => (
+              <Card key={index} className="p-4">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="h-6 w-2/3 bg-gray-300 dark:bg-gray-700 animate-pulse" />
+                  <div className="h-6 w-6 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse" />
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 w-1/2 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2" />
+                  <div className="h-6 w-1/3 bg-gray-300 dark:bg-gray-700 animate-pulse mb-2" />
+                </CardContent>
+              </Card>
+            ))}
         </div>
       </div>
     );
