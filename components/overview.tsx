@@ -2,22 +2,11 @@
 
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from "recharts"
 
-const data = [
-  { name: "Jan", expenses: 2400, budget: 2400 },
-  { name: "Feb", expenses: 1398, budget: 2210 },
-  { name: "Mar", expenses: 9800, budget: 2290 },
-  { name: "Apr", expenses: 3908, budget: 2000 },
-  { name: "May", expenses: 4800, budget: 2181 },
-  { name: "Jun", expenses: 3800, budget: 2500 },
-  { name: "Jul", expenses: 4300, budget: 2100 },
-  { name: "Aug", expenses: 5000, budget: 2300 },
-  { name: "Sep", expenses: 4100, budget: 2400 },
-  { name: "Oct", expenses: 3700, budget: 2200 },
-  { name: "Nov", expenses: 3500, budget: 2100 },
-  { name: "Dec", expenses: 4200, budget: 2300 },
-]
+interface OverviewProps {
+  data: { name: string; expenses: number; budget: number }[]
+}
 
-export function Overview() {
+export function Overview({ data }: OverviewProps) {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <LineChart data={data}>
@@ -47,4 +36,3 @@ export function Overview() {
     </ResponsiveContainer>
   )
 }
-

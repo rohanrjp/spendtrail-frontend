@@ -7,7 +7,6 @@ import { CreateBudgetDialog } from "@/components/create-budget-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton" 
 
 interface Budget {
   id: number
