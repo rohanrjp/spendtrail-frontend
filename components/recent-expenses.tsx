@@ -45,7 +45,7 @@ const columns: ColumnDef<Expense>[] = [
       const amount = parseFloat(row.getValue("amount"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "INR",
       }).format(amount)
       return <div className="font-medium">{formatted}</div>
     },
@@ -71,7 +71,7 @@ export function RecentExpenses() {
 
   useEffect(() => {
     const fetchExpenses = async () => {
-      const jwtToken = localStorage.getItem('jwt_token')  // Retrieve JWT token from local storage
+      const jwtToken = localStorage.getItem('jwt_token')  
 
       if (!jwtToken) {
         console.error("JWT token is missing in localStorage.")
@@ -79,7 +79,7 @@ export function RecentExpenses() {
       }
 
       try {
-        // Make the API request to fetch expenses
+        
         const response = await fetch("https://spendtrail-backend.onrender.com/api/dashboard/recent_expenses", {
           method: 'GET',
           headers: {
@@ -88,19 +88,19 @@ export function RecentExpenses() {
           },
         })
 
-        // Ensure the response is ok
+        
         if (!response.ok) {
           throw new Error(`Error fetching expenses: ${response.statusText}`)
         }
 
         const data = await response.json()
 
-        // Process the response and map it to the format required by the DataTable
+        
         const mappedExpenses = data.map((expense: { category: string, amount: number, date: string }, index: number) => ({
-          id: index + 1,  // Use the index as the ID
+          id: index + 1,  
           name: expense.category,
           amount: expense.amount,
-          date: expense.date,  // Assuming the date is already in the correct format
+          date: expense.date,  
         }))
 
         setExpenses(mappedExpenses)
@@ -110,7 +110,7 @@ export function RecentExpenses() {
     }
 
     fetchExpenses()
-  }, [])  // Fetch the expenses data on mount
+  }, [])  
 
   return (
     <div className="h-[300px] overflow-auto">
