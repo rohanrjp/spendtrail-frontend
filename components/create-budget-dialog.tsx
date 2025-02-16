@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from 'next/dynamic'
+import { toast } from "sonner";
+
+
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
@@ -49,13 +52,14 @@ export function CreateBudgetDialog({ open, onOpenChange, onBudgetCreated }: Crea
       }
 
       onBudgetCreated()
-
+      toast.success('Budget has been created')
       onOpenChange(false)
       setAmount("")
       setCategory("")
       setEmoji("💰")
     } catch (error: any) {
       console.error('Error creating budget:', error)
+      toast.error('Budget has not been created')
       setError(error.message || 'An error occurred while creating the budget')
     }
   }

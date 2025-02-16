@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import dynamic from "next/dynamic";
+import {toast} from "sonner";
 
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
@@ -57,17 +58,18 @@ export function CreateIncomeDialog({
           income_amount: Number(amount),
         }),
       });
-
+    
       if (!response.ok) {
-        throw new Error("Failed to create income");
+        const errorData = await response.json(); 
+        throw new Error(errorData.detail || "Failed to create income");
       }
-
+    
+      toast.success("Income created successfully");
       onIncomeCreated();
       onOpenChange(false);
       resetForm();
     } catch (error) {
-      console.error("Error creating income:", error);
-      alert("Failed to create income. Please try again.");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 

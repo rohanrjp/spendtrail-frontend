@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast"
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
@@ -25,13 +25,15 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
   const [emoji, setEmoji] = useState("💰");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // Store error message
-  const { toast } = useToast(); // Toast for notifications
+  const [errorMessage, setErrorMessage] = useState(""); 
+  const [errorToastShown, setErrorToastShown] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage(""); 
+    setErrorToastShown(false);
 
     const token = localStorage.getItem("jwt_token");
 
@@ -51,29 +53,31 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        setErrorMessage(errorResponse.detail || "Failed to create expense"); // Store error
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: errorResponse.detail || "Failed to create expense",
-        });
+        const errorMsg = errorResponse.detail || "Expense has not been created";
+  
+        setErrorMessage(errorMsg); 
+  
+        if (!errorToastShown) {
+          toast.error(errorMsg); 
+          setErrorToastShown(true);
+        }
         return;
       }
-
-      // Success: Reset form and close modal
       onExpenseCreated();
+      toast.success('Expense has been created')
       setAmount("");
       setCategory("");
       setEmoji("💰");
       onOpenChange(false);
     } catch (error: any) {
       console.error("Error creating expense:", error);
-      setErrorMessage("An unexpected error occurred.");
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-      });
+      const errorMsg = "An unexpected error occurred.";
+      setErrorMessage(errorMsg); 
+
+    if (!errorToastShown) {
+      toast.error(errorMsg);
+      setErrorToastShown(true);
+    }
     } finally {
       setLoading(false);
     }
@@ -87,7 +91,6 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 py-4">
-            {/* Category */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">
                 Category
@@ -106,7 +109,6 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
               </Select>
             </div>
 
-            {/* Amount */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right">
                 Amount
@@ -120,7 +122,6 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
               />
             </div>
 
-            {/* Emoji Picker */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Emoji</Label>
               <div className="col-span-3">
@@ -142,8 +143,7 @@ export function CreateExpenseDialog({ open, onOpenChange, onExpenseCreated }: Cr
               </div>
             </div>
 
-            {/* Error Message */}
-            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            {/* {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>} */}
           </div>
 
           <DialogFooter>

@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 type Income = {
   id: number;
@@ -42,13 +43,16 @@ export default function IncomesPage() {
     const token = localStorage.getItem("jwt_token");
 
     try {
-      const response = await fetch("https://spendtrail-backend.onrender.com/api/incomes", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://spendtrail-backend.onrender.com/api/incomes",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -60,7 +64,11 @@ export default function IncomesPage() {
       const data: Income[] = await response.json();
       setIncomes(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while fetching incomes");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while fetching incomes"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +83,7 @@ export default function IncomesPage() {
     try {
       const token = localStorage.getItem("jwt_token");
       if (!token) {
-        throw new Error("User is not authenticated");
+        throw new Error("User is not authenticated. Please log in.");
       }
 
       const response = await fetch(
@@ -94,14 +102,22 @@ export default function IncomesPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to update income");
+        throw new Error(errorData.detail || "Failed to update income.");
       }
 
+      toast.success("Income has been updated successfully!");
       setIsEditDialogOpen(false);
-      fetchIncomes(); 
+      fetchIncomes();
     } catch (err) {
-      console.error("Error updating income:", err);
-      alert("Error updating income: " + (err instanceof Error ? err.message : "Unknown error"));
+      let errorMessage = "An unexpected error occurred while updating income.";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+
+      toast.error(errorMessage);
     }
   };
 
@@ -142,7 +158,10 @@ export default function IncomesPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Incomes</h1>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="cursor-pointer" onClick={() => setIsCreateDialogOpen(true)}>
+        <Card
+          className="cursor-pointer"
+          onClick={() => setIsCreateDialogOpen(true)}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Create Income</CardTitle>
             <PlusCircle className="h-4 w-4 text-muted-foreground" />
@@ -152,7 +171,11 @@ export default function IncomesPage() {
           </CardContent>
         </Card>
         {incomes.map((income) => (
-          <Card key={income.id} className="cursor-pointer" onClick={() => handleEditIncome(income)}>
+          <Card
+            key={income.id}
+            className="cursor-pointer"
+            onClick={() => handleEditIncome(income)}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>{income.income_emoji}</span>
@@ -190,16 +213,24 @@ export default function IncomesPage() {
                   <Input
                     id="amount"
                     type="number"
-                    onChange={(e) =>
-                      setEditingIncome({ ...editingIncome, income_amount: Number(e.target.value) })
-                    }
+                    step="0.01"
+                    min="0" 
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingIncome({
+                        ...editingIncome,
+                        income_amount: value ? parseFloat(value) : 0,
+                      });
+                    }}
                     className="col-span-3"
                     required
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit"className="bg-green-600">Update Income</Button>
+                <Button type="submit" className="bg-green-600">
+                  Update Income
+                </Button>
               </DialogFooter>
             </form>
           )}

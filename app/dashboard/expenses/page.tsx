@@ -3,13 +3,19 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle } from "lucide-react";
 import { CreateExpenseDialog } from "@/components/create-expense-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Toaster } from "sonner";
+import { toast } from "sonner";
+
 
 type Expense = {
   id: number;
@@ -30,33 +36,40 @@ export default function ExpensesPage() {
   useEffect(() => {
     fetchExpenses();
   }, []);
-  
+
   const fetchExpenses = async () => {
     setIsLoading(true);
     setError(null);
-  
-    const token = localStorage.getItem('jwt_token');
-  
+
+    const token = localStorage.getItem("jwt_token");
+
     try {
-      const response = await fetch('https://spendtrail-backend.onrender.com/api/expenses', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      const response = await fetch(
+        "https://spendtrail-backend.onrender.com/api/expenses",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('User not authenticated');
+          throw new Error("User not authenticated");
         }
-        throw new Error('Failed to fetch expenses, Please Login again');
+        throw new Error("Failed to fetch expenses, Please Login again");
       }
-  
+
       const data: Expense[] = await response.json();
       setExpenses(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while fetching expenses');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while fetching expenses"
+      );
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -97,7 +110,7 @@ export default function ExpensesPage() {
             ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -111,7 +124,6 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <Toaster position="top-right" richColors />
       <h1 className="text-3xl font-bold">Expenses</h1>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card
@@ -119,7 +131,9 @@ export default function ExpensesPage() {
           onClick={() => setIsCreateDialogOpen(true)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Create Expense</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Create Expense
+            </CardTitle>
             <PlusCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -180,9 +194,11 @@ export default function ExpensesPage() {
 
                   if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.detail || "Failed to update expense");
+                    throw new Error(
+                      errorData.detail || "Failed to update expense"
+                    );
                   }
-
+                  toast.success('Expense has been updated')
                   setIsEditDialogOpen(false);
                   fetchExpenses();
                 } catch (err) {
@@ -192,9 +208,7 @@ export default function ExpensesPage() {
                   } else if (typeof err === "string") {
                     errorMessage = err;
                   }
-
-                  console.error("Error updating expense:", errorMessage);
-                  alert("Error updating expense: " + errorMessage);
+                  toast.error(errorMessage);
                 }
               }}
             >
@@ -206,8 +220,12 @@ export default function ExpensesPage() {
                   <Input
                     id="amount"
                     type="number"
+                    step="0.01" 
                     onChange={(e) => {
-                      const updatedExpense = { ...editingExpense, expense_amount: Number(e.target.value) };
+                      const updatedExpense = {
+                        ...editingExpense,
+                        expense_amount: parseFloat(e.target.value), 
+                      };
                       setEditingExpense(updatedExpense);
                     }}
                     className="col-span-3"
@@ -216,7 +234,9 @@ export default function ExpensesPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" className="bg-green-600">Update Expense</Button>
+                <Button type="submit" className="bg-green-600">
+                  Update Expense
+                </Button>
               </DialogFooter>
             </form>
           )}

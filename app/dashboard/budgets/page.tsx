@@ -7,6 +7,8 @@ import { CreateBudgetDialog } from "@/components/create-budget-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner";
+
 
 interface Budget {
   id: number
@@ -69,7 +71,7 @@ export default function BudgetsPage() {
   const handleUpdateBudget = async (updatedBudget: Budget) => {
     try {
       const token = localStorage.getItem("jwt_token")
-
+    
       const response = await fetch(
         `https://spendtrail-backend.onrender.com/api/update_budget/${updatedBudget.category}`,
         {
@@ -83,15 +85,26 @@ export default function BudgetsPage() {
           }),
         }
       )
-
+    
       if (!response.ok) {
-        throw new Error("Failed to update the budget")
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Failed to update the budget")
       }
-
+    
+      toast.success("Budget has been updated successfully!")
       await fetchBudgets()
       setIsEditDialogOpen(false)
-    } catch (err: any) {
-      setError(err.message || "An error occurred while updating the budget")
+    } catch (err) {
+      let errorMessage = "An error occurred while updating the budget"
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (typeof err === "string") {
+        errorMessage = err
+      }
+    
+      setError(errorMessage)
+      toast.error(errorMessage)
     }
   }
 
@@ -103,7 +116,7 @@ export default function BudgetsPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Budgets</h1>
       {loading && <p>Loading budgets...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* {error && <p className="text-red-500">{error}</p>} */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="cursor-pointer" onClick={() => setIsCreateDialogOpen(true)}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
