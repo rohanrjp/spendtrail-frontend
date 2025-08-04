@@ -6,18 +6,20 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { LayoutDashboard, CreditCard, PiggyBank, BarChart3, User, Menu, Wallet } from 'lucide-react'
+import { LayoutDashboard, CreditCard, PiggyBank, BarChart3, User, Menu, Wallet, RefreshCcw, RefreshCwIcon } from 'lucide-react'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 const sidebarItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", color: "text-blue-500" },
   { name: "Expenses", icon: CreditCard, href: "/dashboard/expenses", color: "text-red-500" },
+  { name: "Subscriptions", icon: RefreshCcw, href: "/dashboard/subscriptions", color: "text-indigo-500" },
   { name: "Budgets", icon: PiggyBank, href: "/dashboard/budgets", color: "text-green-500" },
   { name: "Incomes", icon: Wallet, href: "/dashboard/incomes", color: "text-yellow-500" },
   { name: "Analytics", icon: BarChart3, href: "/dashboard/analytics", color: "text-purple-500" },
   { name: "Past Reports", icon: Menu, href: "/dashboard/past-reports", color: "text-orange-500" },
   { name: "Profile", icon: User, href: "/dashboard/profile", color: "text-pink-500" },
+  
 ]
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
